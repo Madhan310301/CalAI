@@ -6,7 +6,6 @@
 <br/>
 
 <!-- BADGES -->
-![License](https://img.shields.io/badge/License-MIT-00e87b?style=for-the-badge&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-React%20Native-4db8ff?style=for-the-badge&logo=react&logoColor=white)
 ![AI](https://img.shields.io/badge/AI-Multimodal%20Vision-ff8c42?style=for-the-badge&logo=openai&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Active-00e87b?style=for-the-badge)
@@ -226,13 +225,6 @@ nutrilens-ai/
 └── docs/                 # Documentation
 ```
 
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see [`LICENSE`](LICENSE) for details.
-
----
 
 <div align="center">
 
