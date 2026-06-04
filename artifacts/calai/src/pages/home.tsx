@@ -91,18 +91,20 @@ export default function Home() {
 
   // Group logs by meal type
   const grouped: Record<string, typeof logs> = {};
-  if (logs) {
+  if (Array.isArray(logs)) {
     for (const log of logs) {
       if (!grouped[log.mealType]) grouped[log.mealType] = [];
       grouped[log.mealType]!.push(log);
     }
   }
 
-  const weeklyData = weekly?.map((d) => ({
-    day: format(parseISO(d.date), "EEE"),
-    calories: Math.round(d.totalCalories),
-    date: d.date,
-  })) ?? [];
+  const weeklyData = Array.isArray(weekly)
+    ? weekly.map((d) => ({
+        day: format(parseISO(d.date), "EEE"),
+        calories: Math.round(d.totalCalories),
+        date: d.date,
+      }))
+    : [];
 
   const today = todayStr;
 
@@ -239,7 +241,7 @@ export default function Home() {
                 <div key={i} className="h-20 animate-pulse bg-muted rounded-2xl" />
               ))}
             </div>
-          ) : !logs || logs.length === 0 ? (
+          ) : !Array.isArray(logs) || logs.length === 0 ? (
             <div className="bg-card border border-border rounded-2xl p-8 flex flex-col items-center gap-3 text-center">
               <Flame className="w-10 h-10 text-muted-foreground/40" />
               <p className="text-muted-foreground text-sm">No food logged yet today.</p>

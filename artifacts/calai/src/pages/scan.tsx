@@ -193,7 +193,7 @@ export default function Scan() {
   const analyzeFood = useAnalyzeFood();
   const createFoodLog = useCreateFoodLog();
   const barcodeQuery = useLookupBarcode(scannedCode ?? "", {
-    query: { enabled: !!scannedCode, retry: false },
+    query: { enabled: !!scannedCode, retry: false } as any,
   });
 
   // ── Photo handlers ──────────────────────────────────────────────────────────

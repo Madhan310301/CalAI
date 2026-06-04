@@ -25,7 +25,7 @@ export async function analyzeFoodImage(
   mimeType: string,
   description?: string | null
 ): Promise<FoodAnalysis> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const descriptionPart = description
     ? `The user describes it as: "${description}"`

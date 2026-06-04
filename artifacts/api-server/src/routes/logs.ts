@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
-import { db, foodLogsTable } from "@workspace/db";
+import { db, foodLogsTable, isDatabaseAvailable } from "@workspace/db";
 import {
   CreateFoodLogBody,
   DeleteFoodLogParams,
@@ -10,6 +10,11 @@ import {
 const router: IRouter = Router();
 
 router.get("/logs", async (req, res): Promise<void> => {
+  if (!isDatabaseAvailable()) {
+    res.json([]);
+    return;
+  }
+
   const queryParsed = ListFoodLogsQueryParams.safeParse(req.query);
   
   // Default to today
@@ -42,6 +47,11 @@ router.get("/logs", async (req, res): Promise<void> => {
 });
 
 router.post("/logs", async (req, res): Promise<void> => {
+  if (!isDatabaseAvailable()) {
+    res.status(503).json({ error: "Database not configured. Food logging is not available yet." });
+    return;
+  }
+
   const parsed = CreateFoodLogBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -72,6 +82,11 @@ router.post("/logs", async (req, res): Promise<void> => {
 });
 
 router.delete("/logs/:id", async (req, res): Promise<void> => {
+  if (!isDatabaseAvailable()) {
+    res.status(503).json({ error: "Database not configured." });
+    return;
+  }
+
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const paramsParsed = DeleteFoodLogParams.safeParse({ id: parseInt(raw, 10) });
   if (!paramsParsed.success) {

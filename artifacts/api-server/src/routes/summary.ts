@@ -1,11 +1,25 @@
 import { Router, type IRouter } from "express";
 import { gte, lte, and, desc } from "drizzle-orm";
-import { db, foodLogsTable } from "@workspace/db";
+import { db, foodLogsTable, isDatabaseAvailable } from "@workspace/db";
 import { sql } from "drizzle-orm";
 
 const router: IRouter = Router();
 
 router.get("/summary/today", async (req, res): Promise<void> => {
+  if (!isDatabaseAvailable()) {
+    const todayStr = new Date().toISOString().split("T")[0];
+    res.json({
+      date: todayStr,
+      totalCalories: 0,
+      totalProtein: 0,
+      totalCarbs: 0,
+      totalFat: 0,
+      totalFiber: 0,
+      entryCount: 0,
+    });
+    return;
+  }
+
   const todayStr = new Date().toISOString().split("T")[0];
   const startOfDay = new Date(`${todayStr}T00:00:00.000Z`);
   const endOfDay = new Date(`${todayStr}T23:59:59.999Z`);
@@ -47,6 +61,19 @@ router.get("/summary/today", async (req, res): Promise<void> => {
 
 router.get("/summary/weekly", async (req, res): Promise<void> => {
   const now = new Date();
+
+  if (!isDatabaseAvailable()) {
+    const result = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split("T")[0];
+      result.push({ date: dateStr, totalCalories: 0, entryCount: 0 });
+    }
+    res.json(result);
+    return;
+  }
+
   const sevenDaysAgo = new Date(now);
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   sevenDaysAgo.setUTCHours(0, 0, 0, 0);
@@ -88,6 +115,11 @@ router.get("/summary/weekly", async (req, res): Promise<void> => {
 });
 
 router.get("/summary/streak", async (req, res): Promise<void> => {
+  if (!isDatabaseAvailable()) {
+    res.json({ currentStreak: 0, longestStreak: 0, lastLoggedDate: null });
+    return;
+  }
+
   // Fetch all distinct logged dates in descending order
   const rows = await db
     .selectDistinct({
