@@ -229,7 +229,7 @@ nutrilens-ai/
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=00e87b&height=100&section=footer&animation=fadeIn" width="100%"/>
 
-Made with ❤️ by [Madhan Kumar T](https://github.com/your-username)
+Made with ❤️ by [Madhan Kumar T](https://github.com/Madhan310301)
 
 *"Scan smarter. Eat better. Live longer."*
 
