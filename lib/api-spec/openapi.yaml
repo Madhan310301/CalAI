@@ -155,6 +155,19 @@ paths:
                 items:
                   $ref: "#/components/schemas/DayCalories"
 
+  /summary/streak:
+    get:
+      operationId: getStreak
+      tags: [summary]
+      summary: Get the current logging streak in days
+      responses:
+        "200":
+          description: Current streak stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreakResult"
+
 components:
   schemas:
     HealthStatus:
@@ -361,3 +374,20 @@ components:
           type: number
         entryCount:
           type: integer
+
+    StreakResult:
+      type: object
+      required:
+        - currentStreak
+        - longestStreak
+        - lastLoggedDate
+      properties:
+        currentStreak:
+          type: integer
+          description: Number of consecutive days with at least one meal logged (ending today or yesterday)
+        longestStreak:
+          type: integer
+          description: All-time longest streak in days
+        lastLoggedDate:
+          type: ["string", "null"]
+          description: Most recent date a meal was logged (YYYY-MM-DD), or null if never

@@ -131,6 +131,18 @@ export interface DayCalories {
   entryCount: number;
 }
 
+export interface StreakResult {
+  /** Number of consecutive days with at least one meal logged (ending today or yesterday) */
+  currentStreak: number;
+  /** All-time longest streak in days */
+  longestStreak: number;
+  /**
+     * Most recent date a meal was logged (YYYY-MM-DD), or null if never
+     * @nullable
+     */
+  lastLoggedDate: string | null;
+}
+
 export type ListFoodLogsParams = {
 /**
  * Filter by date (YYYY-MM-DD). Defaults to today if not provided.

@@ -19,3 +19,4 @@ export * from './foodLogInputMealType';
 export * from './foodLogMealType';
 export * from './healthStatus';
 export * from './listFoodLogsParams';
+export * from './streakResult';

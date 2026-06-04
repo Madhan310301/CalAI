@@ -1,8 +1,8 @@
 import { useLocation } from "wouter";
-import { useGetTodaySummary, useGetWeeklySummary, useListFoodLogs, getListFoodLogsQueryKey, useDeleteFoodLog, getGetTodaySummaryQueryKey, getGetWeeklySummaryQueryKey } from "@workspace/api-client-react";
+import { useGetTodaySummary, useGetWeeklySummary, useGetStreak, useListFoodLogs, getListFoodLogsQueryKey, useDeleteFoodLog, getGetTodaySummaryQueryKey, getGetWeeklySummaryQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { Camera, Trash2, Flame, Beef, Wheat, Droplet } from "lucide-react";
+import { Camera, Trash2, Flame, Beef, Wheat, Droplet, Zap } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useCalorieGoal } from "@/hooks/useCalorieGoal";
@@ -68,6 +68,7 @@ export default function Home() {
 
   const { data: summary, isLoading: summaryLoading } = useGetTodaySummary();
   const { data: weekly, isLoading: weeklyLoading } = useGetWeeklySummary();
+  const { data: streak } = useGetStreak();
   const { data: logs, isLoading: logsLoading } = useListFoodLogs(
     { date: todayStr },
     { query: { queryKey: getListFoodLogsQueryKey({ date: todayStr }) } }
@@ -168,6 +169,27 @@ export default function Home() {
             <MacroRing value={summary?.totalCarbs ?? 0} max={250} color="hsl(var(--chart-2))" label="Carbs" />
             <MacroRing value={summary?.totalFat ?? 0} max={65} color="hsl(var(--chart-3))" label="Fat" />
             <MacroRing value={summary?.totalFiber ?? 0} max={30} color="hsl(var(--chart-4))" label="Fiber" />
+          </div>
+        </div>
+
+        {/* Streak Card */}
+        <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
+            <Zap className="w-7 h-7 text-accent" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">Current Streak</p>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-3xl font-bold text-accent">{streak?.currentStreak ?? 0}</span>
+              <span className="text-sm font-medium text-muted-foreground">
+                {streak?.currentStreak === 1 ? "day" : "days"}
+              </span>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-xs text-muted-foreground mb-0.5">Best</p>
+            <p className="text-lg font-bold">{streak?.longestStreak ?? 0}</p>
+            <p className="text-xs text-muted-foreground">days</p>
           </div>
         </div>
 

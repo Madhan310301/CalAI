@@ -118,3 +118,13 @@ export const GetWeeklySummaryResponseItem = zod.object({
 export const GetWeeklySummaryResponse = zod.array(GetWeeklySummaryResponseItem)
 
 
+/**
+ * @summary Get the current logging streak in days
+ */
+export const GetStreakResponse = zod.object({
+  "currentStreak": zod.number().describe('Number of consecutive days with at least one meal logged (ending today or yesterday)'),
+  "longestStreak": zod.number().describe('All-time longest streak in days'),
+  "lastLoggedDate": zod.string().nullable().describe('Most recent date a meal was logged (YYYY-MM-DD), or null if never')
+})
+
+

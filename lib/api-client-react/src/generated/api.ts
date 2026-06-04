@@ -29,7 +29,8 @@ import type {
   FoodLog,
   FoodLogInput,
   HealthStatus,
-  ListFoodLogsParams
+  ListFoodLogsParams,
+  StreakResult
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -561,6 +562,83 @@ export function useGetWeeklySummary<TData = Awaited<ReturnType<typeof getWeeklyS
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetWeeklySummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetStreakUrl = () => {
+
+
+
+
+  return `/api/summary/streak`
+}
+
+/**
+ * @summary Get the current logging streak in days
+ */
+export const getStreak = async ( options?: RequestInit): Promise<StreakResult> => {
+
+  return customFetch<StreakResult>(getGetStreakUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStreakQueryKey = () => {
+    return [
+    `/api/summary/streak`
+    ] as const;
+    }
+
+
+export const getGetStreakQueryOptions = <TData = Awaited<ReturnType<typeof getStreak>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStreak>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStreakQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStreak>>> = ({ signal }) => getStreak({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStreak>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStreakQueryResult = NonNullable<Awaited<ReturnType<typeof getStreak>>>
+export type GetStreakQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the current logging streak in days
+ */
+
+export function useGetStreak<TData = Awaited<ReturnType<typeof getStreak>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStreak>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStreakQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
