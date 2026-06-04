@@ -93,7 +93,6 @@ A lightweight **TensorFlow Lite on-device model** handles common foods without i
 | Works offline | ✅ On-device model | ❌ Always online |
 | Raw image privacy | ✅ Embedding-only | ❌ Cloud-stored |
 | Adaptive personal goals | ✅ ML-driven | ❌ Static targets |
-| Open Source | ✅ MIT License | ❌ Proprietary |
 
 ---
 
