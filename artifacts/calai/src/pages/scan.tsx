@@ -8,8 +8,9 @@ import {
   getGetTodaySummaryQueryKey,
   getGetWeeklySummaryQueryKey,
 } from "@workspace/api-client-react";
-import { Camera, Upload, X, Loader2, CheckCircle, ChevronDown, Flame, Beef, Wheat, Droplet, Leaf } from "lucide-react";
+import { Camera, Upload, X, Loader2, CheckCircle, ChevronDown, Flame, Beef, Wheat, Droplet, Leaf, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage } from "@/lib/compressImage";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -47,24 +48,44 @@ export default function Scan() {
   const [description, setDescription] = useState("");
   const [mealType, setMealType] = useState<MealType>(getMealTypeForTime());
   const [logged, setLogged] = useState(false);
+  const [compressStats, setCompressStats] = useState<{ originalKb: number; compressedKb: number } | null>(null);
+  const [compressing, setCompressing] = useState(false);
 
   const analyzeFood = useAnalyzeFood();
   const createFoodLog = useCreateFoodLog();
 
-  const processFile = useCallback((file: File) => {
-    setMimeType(file.type || "image/jpeg");
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
-      setImagePreview(dataUrl);
-      // Extract base64 part (strip "data:image/...;base64,")
-      const base64 = dataUrl.split(",")[1];
-      setImageBase64(base64 ?? null);
-    };
-    reader.readAsDataURL(file);
-    // Reset previous results
+  const processFile = useCallback(async (file: File) => {
     analyzeFood.reset();
     setLogged(false);
+    setCompressStats(null);
+    setCompressing(true);
+
+    // Show instant preview from original file while compressing
+    const objectUrl = URL.createObjectURL(file);
+    setImagePreview(objectUrl);
+
+    try {
+      const { base64, mimeType: outMime, originalKb, compressedKb } = await compressImage(file);
+      setImageBase64(base64);
+      setMimeType(outMime);
+      setCompressStats({ originalKb, compressedKb });
+      // Replace preview with compressed JPEG for consistency
+      setImagePreview(`data:image/jpeg;base64,${base64}`);
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      // Fallback: use original file via FileReader
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setImagePreview(dataUrl);
+        setImageBase64(dataUrl.split(",")[1] ?? null);
+        setMimeType(file.type || "image/jpeg");
+        URL.revokeObjectURL(objectUrl);
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setCompressing(false);
+    }
   }, [analyzeFood]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,6 +142,8 @@ export default function Scan() {
   const clearImage = () => {
     setImagePreview(null);
     setImageBase64(null);
+    setCompressStats(null);
+    setCompressing(false);
     analyzeFood.reset();
     setLogged(false);
     setDescription("");
@@ -176,6 +199,21 @@ export default function Scan() {
             >
               <X className="w-4 h-4 text-white" />
             </button>
+            {/* Compression badge */}
+            {compressing && (
+              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/60 text-white text-xs px-2.5 py-1.5 rounded-full">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Optimizing…
+              </div>
+            )}
+            {compressStats && !compressing && (
+              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/60 text-white text-xs px-2.5 py-1.5 rounded-full">
+                <Zap className="w-3 h-3 text-yellow-400" />
+                {compressStats.originalKb > compressStats.compressedKb
+                  ? `${compressStats.originalKb} KB → ${compressStats.compressedKb} KB`
+                  : `${compressStats.compressedKb} KB`}
+              </div>
+            )}
           </div>
         )}
 
