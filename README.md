@@ -9,7 +9,7 @@
 ![Platform](https://img.shields.io/badge/Platform-React%20Native-4db8ff?style=for-the-badge&logo=react&logoColor=white)
 ![AI](https://img.shields.io/badge/AI-Multimodal%20Vision-ff8c42?style=for-the-badge&logo=openai&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Active-00e87b?style=for-the-badge)
-![Node](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Node](https://img.shields.io/badge/Node.js-24%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 
 <br/>
 
