@@ -131,6 +131,19 @@ export interface DayCalories {
   entryCount: number;
 }
 
+export interface BarcodeProduct {
+  foodName: string;
+  barcode: string;
+  servingSize: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  /** True if values are per-serving, false if per-100g */
+  perServing: boolean;
+}
+
 export interface StreakResult {
   /** Number of consecutive days with at least one meal logged (ending today or yesterday) */
   currentStreak: number;

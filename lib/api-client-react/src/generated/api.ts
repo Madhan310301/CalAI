@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  BarcodeProduct,
   DailySummary,
   DayCalories,
   DeleteResult,
@@ -562,6 +563,83 @@ export function useGetWeeklySummary<TData = Awaited<ReturnType<typeof getWeeklyS
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetWeeklySummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getLookupBarcodeUrl = (code: string,) => {
+
+
+
+
+  return `/api/barcode/${code}`
+}
+
+/**
+ * @summary Look up food nutrition by barcode
+ */
+export const lookupBarcode = async (code: string, options?: RequestInit): Promise<BarcodeProduct> => {
+
+  return customFetch<BarcodeProduct>(getLookupBarcodeUrl(code),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getLookupBarcodeQueryKey = (code: string,) => {
+    return [
+    `/api/barcode/${code}`
+    ] as const;
+    }
+
+
+export const getLookupBarcodeQueryOptions = <TData = Awaited<ReturnType<typeof lookupBarcode>>, TError = ErrorType<ErrorResponse>>(code: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof lookupBarcode>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getLookupBarcodeQueryKey(code);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof lookupBarcode>>> = ({ signal }) => lookupBarcode(code, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(code), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof lookupBarcode>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type LookupBarcodeQueryResult = NonNullable<Awaited<ReturnType<typeof lookupBarcode>>>
+export type LookupBarcodeQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Look up food nutrition by barcode
+ */
+
+export function useLookupBarcode<TData = Awaited<ReturnType<typeof lookupBarcode>>, TError = ErrorType<ErrorResponse>>(
+ code: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof lookupBarcode>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getLookupBarcodeQueryOptions(code,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

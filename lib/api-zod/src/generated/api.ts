@@ -119,6 +119,26 @@ export const GetWeeklySummaryResponse = zod.array(GetWeeklySummaryResponseItem)
 
 
 /**
+ * @summary Look up food nutrition by barcode
+ */
+export const LookupBarcodeParams = zod.object({
+  "code": zod.coerce.string().describe('EAN\/UPC barcode number')
+})
+
+export const LookupBarcodeResponse = zod.object({
+  "foodName": zod.string(),
+  "barcode": zod.string(),
+  "servingSize": zod.string(),
+  "calories": zod.number(),
+  "protein": zod.number(),
+  "carbs": zod.number(),
+  "fat": zod.number(),
+  "fiber": zod.number(),
+  "perServing": zod.boolean().describe('True if values are per-serving, false if per-100g')
+})
+
+
+/**
  * @summary Get the current logging streak in days
  */
 export const GetStreakResponse = zod.object({

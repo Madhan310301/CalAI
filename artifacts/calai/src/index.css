@@ -220,6 +220,19 @@
   }
 }
 
+@keyframes scan-line {
+  0%   { top: 4px; opacity: 1; }
+  48%  { opacity: 1; }
+  50%  { top: calc(100% - 4px); opacity: 0; }
+  52%  { top: 4px; opacity: 0; }
+  54%  { opacity: 1; }
+  100% { top: 4px; opacity: 1; }
+}
+.animate-scan-line {
+  animation: scan-line 2s ease-in-out infinite;
+  position: absolute;
+}
+
 @layer utilities {
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;

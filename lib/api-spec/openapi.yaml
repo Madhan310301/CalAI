@@ -155,6 +155,38 @@ paths:
                 items:
                   $ref: "#/components/schemas/DayCalories"
 
+  /barcode/{code}:
+    get:
+      operationId: lookupBarcode
+      tags: [logs]
+      summary: Look up food nutrition by barcode
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          description: EAN/UPC barcode number
+      responses:
+        "200":
+          description: Product nutrition data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BarcodeProduct"
+        "404":
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Upstream lookup failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /summary/streak:
     get:
       operationId: getStreak
@@ -374,6 +406,39 @@ components:
           type: number
         entryCount:
           type: integer
+
+    BarcodeProduct:
+      type: object
+      required:
+        - foodName
+        - barcode
+        - servingSize
+        - calories
+        - protein
+        - carbs
+        - fat
+        - fiber
+        - perServing
+      properties:
+        foodName:
+          type: string
+        barcode:
+          type: string
+        servingSize:
+          type: string
+        calories:
+          type: number
+        protein:
+          type: number
+        carbs:
+          type: number
+        fat:
+          type: number
+        fiber:
+          type: number
+        perServing:
+          type: boolean
+          description: True if values are per-serving, false if per-100g
 
     StreakResult:
       type: object
