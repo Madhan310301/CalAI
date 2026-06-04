@@ -3,13 +3,19 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CalAI - Food Calorie Tracker API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: analyze
+    description: Food analysis operations
+  - name: logs
+    description: Food log operations
+  - name: summary
+    description: Summary and stats operations
 paths:
   /healthz:
     get:
@@ -24,6 +30,131 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /analyze:
+    post:
+      operationId: analyzeFood
+      tags: [analyze]
+      summary: Analyze food from image and description
+      description: Uses Gemini Vision AI to analyze food calories and macros from a base64 image and optional description
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FoodAnalysisInput"
+      responses:
+        "200":
+          description: Calorie analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FoodAnalysisResult"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Analysis failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /logs:
+    get:
+      operationId: listFoodLogs
+      tags: [logs]
+      summary: List all food log entries
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by date (YYYY-MM-DD). Defaults to today if not provided.
+      responses:
+        "200":
+          description: List of food log entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FoodLog"
+    post:
+      operationId: createFoodLog
+      tags: [logs]
+      summary: Save a food log entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FoodLogInput"
+      responses:
+        "201":
+          description: Created food log entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FoodLog"
+
+  /logs/{id}:
+    delete:
+      operationId: deleteFoodLog
+      tags: [logs]
+      summary: Delete a food log entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /summary/today:
+    get:
+      operationId: getTodaySummary
+      tags: [summary]
+      summary: Get today's calorie and macro summary
+      responses:
+        "200":
+          description: Today's nutrition summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailySummary"
+
+  /summary/weekly:
+    get:
+      operationId: getWeeklySummary
+      tags: [summary]
+      summary: Get the past 7 days calorie summary
+      responses:
+        "200":
+          description: Weekly calorie data per day
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DayCalories"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +165,199 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    DeleteResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+        - success
+
+    FoodAnalysisInput:
+      type: object
+      required:
+        - imageBase64
+        - mimeType
+      properties:
+        imageBase64:
+          type: string
+          description: Base64-encoded image data
+        mimeType:
+          type: string
+          description: MIME type of the image (e.g. image/jpeg)
+        description:
+          type: ["string", "null"]
+          description: Optional description of the food and quantity
+
+    FoodAnalysisResult:
+      type: object
+      required:
+        - foodName
+        - calories
+        - protein
+        - carbs
+        - fat
+        - fiber
+        - confidence
+        - servingSize
+        - ingredients
+      properties:
+        foodName:
+          type: string
+          description: Identified food name
+        calories:
+          type: number
+          description: Total calories (kcal)
+        protein:
+          type: number
+          description: Protein in grams
+        carbs:
+          type: number
+          description: Carbohydrates in grams
+        fat:
+          type: number
+          description: Fat in grams
+        fiber:
+          type: number
+          description: Fiber in grams
+        servingSize:
+          type: string
+          description: Estimated serving size description
+        confidence:
+          type: string
+          enum: [high, medium, low]
+          description: Confidence level of the analysis
+        ingredients:
+          type: array
+          items:
+            type: string
+          description: List of identified ingredients
+
+    FoodLogInput:
+      type: object
+      required:
+        - foodName
+        - calories
+        - protein
+        - carbs
+        - fat
+        - fiber
+        - servingSize
+        - mealType
+      properties:
+        foodName:
+          type: string
+        calories:
+          type: number
+        protein:
+          type: number
+        carbs:
+          type: number
+        fat:
+          type: number
+        fiber:
+          type: number
+        servingSize:
+          type: string
+        mealType:
+          type: string
+          enum: [breakfast, lunch, dinner, snack]
+        imageBase64:
+          type: ["string", "null"]
+          description: Optional base64 thumbnail image
+        ingredients:
+          type: array
+          items:
+            type: string
+
+    FoodLog:
+      type: object
+      required:
+        - id
+        - foodName
+        - calories
+        - protein
+        - carbs
+        - fat
+        - fiber
+        - servingSize
+        - mealType
+        - loggedAt
+        - ingredients
+      properties:
+        id:
+          type: integer
+        foodName:
+          type: string
+        calories:
+          type: number
+        protein:
+          type: number
+        carbs:
+          type: number
+        fat:
+          type: number
+        fiber:
+          type: number
+        servingSize:
+          type: string
+        mealType:
+          type: string
+          enum: [breakfast, lunch, dinner, snack]
+        imageBase64:
+          type: ["string", "null"]
+        ingredients:
+          type: array
+          items:
+            type: string
+        loggedAt:
+          type: string
+          format: date-time
+
+    DailySummary:
+      type: object
+      required:
+        - date
+        - totalCalories
+        - totalProtein
+        - totalCarbs
+        - totalFat
+        - totalFiber
+        - entryCount
+      properties:
+        date:
+          type: string
+        totalCalories:
+          type: number
+        totalProtein:
+          type: number
+        totalCarbs:
+          type: number
+        totalFat:
+          type: number
+        totalFiber:
+          type: number
+        entryCount:
+          type: integer
+
+    DayCalories:
+      type: object
+      required:
+        - date
+        - totalCalories
+        - entryCount
+      properties:
+        date:
+          type: string
+        totalCalories:
+          type: number
+        entryCount:
+          type: integer
