@@ -5,8 +5,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { Camera, Trash2, Flame, Beef, Wheat, Droplet } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-
-const DAILY_GOAL = 2000;
+import { useCalorieGoal } from "@/hooks/useCalorieGoal";
+import GoalSettingsDialog from "@/components/GoalSettingsDialog";
 const MEAL_LABELS: Record<string, string> = {
   breakfast: "Breakfast",
   lunch: "Lunch",
@@ -83,8 +83,8 @@ export default function Home() {
     },
   });
 
+  const { goal, setGoal } = useCalorieGoal();
   const cal = summary?.totalCalories ?? 0;
-  const goal = DAILY_GOAL;
   const pct = Math.min(cal / goal, 1);
   const circumference = 2 * Math.PI * 56;
 
@@ -110,7 +110,10 @@ export default function Home() {
       {/* Header */}
       <div className="bg-primary px-5 pt-12 pb-8 rounded-b-3xl text-primary-foreground">
         <div className="mb-1 text-sm font-medium opacity-80">{format(new Date(), "EEEE, MMMM d")}</div>
-        <h1 className="text-2xl font-bold mb-6">Daily Summary</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">Daily Summary</h1>
+          <GoalSettingsDialog currentGoal={goal} onSave={setGoal} />
+        </div>
 
         {/* Calorie Ring */}
         <div className="flex items-center gap-6">
